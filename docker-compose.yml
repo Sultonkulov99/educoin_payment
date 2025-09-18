@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: educoin_payment_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: educoin_payment
+    ports:
+      - "5433:5432"
+    volumes:
+      - baza_data:/var/lib/postgresql/data
+  app:
+    build: .
+    container_name: educoin_payment_app
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db 
+    command: >
+      sh -c "
+        npx prisma generate &&
+        npx prisma migrate deploy &&
+        npm run start:prod
+      "
+    environment:
+      DATABASE_URL: postgres://postgres:12345@db:5432/educoin_payment
+
+volumes:
+  baza_data: 
