@@ -193,74 +193,126 @@ export class PaymentsService {
     return {};
   }
 
+  // private async CreateTransaction(
+  //   payload: PaymeRequestParams[PaymeMethods.CreateTransaction],
+  // ): Promise<
+  //   | PaymeResponse<PaymeResponses[PaymeMethods.CreateTransaction]>
+  //   | PaymeErrorResponse
+  // > {
+  //   const account = await this.checkAccount(payload.account, payload.amount);
+  //   if ('error' in account) {
+  //     return account;
+  //   }
+  //   const pendingTransaction = await this.prisma.transaction.findFirst({
+  //     where: {
+  //       centerId: parseInt(payload.account.center_id),
+  //       // courseId: payload.account.course_id,
+  //       state: PaymeTransactionState.CREATED,
+  //       pid: {
+  //         not: payload.id,
+  //       },
+  //     },
+  //   });
+  //   // if (pendingTransaction) {
+  //   //   return {
+  //   //     error: {
+  //   //       code: PaymeErrorCode.INVALID_ACCOUNT,
+  //   //       message: {
+  //   //         en: 'Transaction is in que',
+  //   //         ru: 'Транзакция в очереди',
+  //   //         uz: 'Tranzaksiya navbatda',
+  //   //       },
+  //   //     },
+  //   //   } as PaymeErrorResponse;
+  //   // }
+  //   // const transaction = await this.prisma.transaction.findFirst({
+  //   //   where: { pid: payload.id },
+  //   // });
+  //   // if (transaction) {
+  //   //   const validateTimeout = await this.validateTransactionTimeout(
+  //   //     transaction,
+  //   //   );
+  //   //   if ('error' in validateTimeout) {
+  //   //     return validateTimeout as PaymeErrorResponse;
+  //   //   }
+  //   //   return {
+  //   //     result: {
+  //   //       create_time: getInMills(transaction.create_time),
+  //   //       state: transaction.state,
+  //   //       transaction: transaction.id,
+  //   //     },
+  //   //   };
+  //   // }
+  //   const newTransaction = await this.prisma.transaction.create({
+  //     data: {
+  //       centerId: parseInt(payload.account.center_id),
+  //       // courseId: payload.account.course_id,
+  //       pid: payload.id,
+  //       create_time: new Date(),
+  //       state: PaymeTransactionState.CREATED,
+  //       amount: pennyToAmount(payload.amount),
+  //     },
+  //   });
+  //   return {
+  //     result: {
+  //       transaction: newTransaction.id,
+  //       state: newTransaction.state,
+  //       create_time: getInMills(newTransaction.create_time),
+  //     },
+  //   };
+  // }
   private async CreateTransaction(
-    payload: PaymeRequestParams[PaymeMethods.CreateTransaction],
-  ): Promise<
-    | PaymeResponse<PaymeResponses[PaymeMethods.CreateTransaction]>
-    | PaymeErrorResponse
-  > {
-    const account = await this.checkAccount(payload.account, payload.amount);
-    if ('error' in account) {
-      return account;
+  payload: PaymeRequestParams[PaymeMethods.CreateTransaction],
+): Promise<
+  | PaymeResponse<PaymeResponses[PaymeMethods.CreateTransaction]>
+  | PaymeErrorResponse
+> {
+  const account = await this.checkAccount(payload.account, payload.amount);
+  if ('error' in account) {
+    return account;
+  }
+
+  // ❌ Cheklov olib tashlandi: centerda oldingi CREATED tranzaksiyalarni tekshirmaymiz
+
+  // Avval transaction shu pid bilan mavjudmi tekshiramiz
+  const existingTransaction = await this.prisma.transaction.findUnique({
+    where: { pid: payload.id },
+  });
+
+  if (existingTransaction) {
+    const validateTimeout = await this.validateTransactionTimeout(existingTransaction);
+    if ('error' in validateTimeout) {
+      return validateTimeout as PaymeErrorResponse;
     }
-    const pendingTransaction = await this.prisma.transaction.findFirst({
-      where: {
-        centerId: parseInt(payload.account.center_id),
-        // courseId: payload.account.course_id,
-        state: PaymeTransactionState.CREATED,
-        pid: {
-          not: payload.id,
-        },
-      },
-    });
-    // if (pendingTransaction) {
-    //   return {
-    //     error: {
-    //       code: PaymeErrorCode.INVALID_ACCOUNT,
-    //       message: {
-    //         en: 'Transaction is in que',
-    //         ru: 'Транзакция в очереди',
-    //         uz: 'Tranzaksiya navbatda',
-    //       },
-    //     },
-    //   } as PaymeErrorResponse;
-    // }
-    // const transaction = await this.prisma.transaction.findFirst({
-    //   where: { pid: payload.id },
-    // });
-    // if (transaction) {
-    //   const validateTimeout = await this.validateTransactionTimeout(
-    //     transaction,
-    //   );
-    //   if ('error' in validateTimeout) {
-    //     return validateTimeout as PaymeErrorResponse;
-    //   }
-    //   return {
-    //     result: {
-    //       create_time: getInMills(transaction.create_time),
-    //       state: transaction.state,
-    //       transaction: transaction.id,
-    //     },
-    //   };
-    // }
-    const newTransaction = await this.prisma.transaction.create({
-      data: {
-        centerId: parseInt(payload.account.center_id),
-        // courseId: payload.account.course_id,
-        pid: payload.id,
-        create_time: new Date(),
-        state: PaymeTransactionState.CREATED,
-        amount: pennyToAmount(payload.amount),
-      },
-    });
     return {
       result: {
-        transaction: newTransaction.id,
-        state: newTransaction.state,
-        create_time: getInMills(newTransaction.create_time),
+        create_time: getInMills(existingTransaction.create_time),
+        state: existingTransaction.state,
+        transaction: existingTransaction.id,
       },
     };
   }
+
+  // Yangi transaction yaratamiz
+  const newTransaction = await this.prisma.transaction.create({
+    data: {
+      centerId: parseInt(payload.account.center_id),
+      pid: payload.id,
+      create_time: new Date(),
+      state: PaymeTransactionState.CREATED,
+      amount: pennyToAmount(payload.amount),
+    },
+  });
+
+  return {
+    result: {
+      transaction: newTransaction.id,
+      state: newTransaction.state,
+      create_time: getInMills(newTransaction.create_time),
+    },
+  };
+}
+
 
   private TRANSACTION_NOT_FOUND_ERROR: PaymeErrorResponse = {
     error: {
