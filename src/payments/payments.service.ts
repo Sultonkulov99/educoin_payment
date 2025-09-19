@@ -213,36 +213,36 @@ export class PaymentsService {
         },
       },
     });
-    if (pendingTransaction) {
-      return {
-        error: {
-          code: PaymeErrorCode.INVALID_ACCOUNT,
-          message: {
-            en: 'Transaction is in que',
-            ru: 'Транзакция в очереди',
-            uz: 'Tranzaksiya navbatda',
-          },
-        },
-      } as PaymeErrorResponse;
-    }
-    const transaction = await this.prisma.transaction.findFirst({
-      where: { pid: payload.id },
-    });
-    if (transaction) {
-      const validateTimeout = await this.validateTransactionTimeout(
-        transaction,
-      );
-      if ('error' in validateTimeout) {
-        return validateTimeout as PaymeErrorResponse;
-      }
-      return {
-        result: {
-          create_time: getInMills(transaction.create_time),
-          state: transaction.state,
-          transaction: transaction.id,
-        },
-      };
-    }
+    // if (pendingTransaction) {
+    //   return {
+    //     error: {
+    //       code: PaymeErrorCode.INVALID_ACCOUNT,
+    //       message: {
+    //         en: 'Transaction is in que',
+    //         ru: 'Транзакция в очереди',
+    //         uz: 'Tranzaksiya navbatda',
+    //       },
+    //     },
+    //   } as PaymeErrorResponse;
+    // }
+    // const transaction = await this.prisma.transaction.findFirst({
+    //   where: { pid: payload.id },
+    // });
+    // if (transaction) {
+    //   const validateTimeout = await this.validateTransactionTimeout(
+    //     transaction,
+    //   );
+    //   if ('error' in validateTimeout) {
+    //     return validateTimeout as PaymeErrorResponse;
+    //   }
+    //   return {
+    //     result: {
+    //       create_time: getInMills(transaction.create_time),
+    //       state: transaction.state,
+    //       transaction: transaction.id,
+    //     },
+    //   };
+    // }
     const newTransaction = await this.prisma.transaction.create({
       data: {
         centerId: parseInt(payload.account.center_id),
