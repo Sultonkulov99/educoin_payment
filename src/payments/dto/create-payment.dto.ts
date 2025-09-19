@@ -4,5 +4,5 @@ import { IsUUID } from 'class-validator';
 export class CreatePaymentDto {
   @ApiProperty()
   @IsUUID()
-  centerId: string;
+  centerId: number;
 }

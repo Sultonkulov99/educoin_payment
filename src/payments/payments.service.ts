@@ -33,39 +33,34 @@ export class PaymentsService {
     // @Inject(CACHE_MANAGER) private cacheStore: Cache,
   ) { }
 
-  private MERCHANT_ID = process.env.PAYME_MERCHANT_ID as string;
-  private MERCHANT_KEY = process.env.PAYME_KEY as string;
+  private MERCHANT_ID = "68cbb0f40498426284f50559";
+  // private MERCHANT_KEY = process.env.PAYME_KEY as string;
+  private MERCHANT_TEST_KEY = "ZR&KXDqE0j&HW1nUyhZSTG5?m#S8n&vJyr6#"
   private $paymeCheckoutUrl = process.env.PAYME_CHECKOUT_URL as string;
   private $transactionTimeout = 30; // in minutes
+  private amount = 200000
 
-  // async createPayment(payload: CreatePaymentDto, authUser: TAuthUser) {
-  //   const course = await this.prisma.course.findUnique({
-  //     where: {
-  //       published: true,
-  //       id: payload.courseId,
-  //     },
-  //   });
-  //   if (!course) {
-  //     throw new NotFoundException('Course not found');
-  //   }
-  //   const purchasedCourse = await this.prisma.purchasedCourse.findUnique({
-  //     where: {
-  //       userId_courseId: {
-  //         courseId: payload.courseId,
-  //         userId: authUser.id,
-  //       },
-  //     },
-  //   });
-  //   if (purchasedCourse) {
-  //     throw new BadRequestException('User already purchased this course');
-  //   }
-  //   const checkoutPayload = Buffer.from(
-  //     `m=${this.MERCHANT_ID};a=${amountToPenny(
-  //       course.price.toNumber(),
-  //     )};ac.course_id=${course.id};ac.user_id=${authUser.id}`,
-  //   ).toString('base64');
-  //   return this.$paymeCheckoutUrl + checkoutPayload;  
-  // }
+  async createPayment(payload: CreatePaymentDto) {
+    const center = await this.prisma.center.findUnique({
+      where: {
+        id: payload.centerId,
+      },
+    });
+    if (!center) {
+      throw new NotFoundException('Center not found');
+    }
+
+
+    // const purchasedPayment = await this.prisma.payment.findFirst({
+    //   where: {
+    //       centerId: payload.centerId,
+    //     }
+    // });
+    const checkoutPayload = Buffer.from(
+      `m=${this.MERCHANT_ID};a=${amountToPenny(this.amount)};ac.center_id=${payload.centerId}`,
+    ).toString('base64');
+    return this.$paymeCheckoutUrl + checkoutPayload;  
+  }
 
   private validateCenterId(id: string): PaymeErrorResponse | Record<any, any> {
     const validCenterId = new RegExp('^[0-9]*$');
@@ -493,7 +488,7 @@ export class PaymentsService {
       const token = (headers.authorization as string).split(' ')[1];
       const decoded = Buffer.from(token, 'base64').toString();
       const [login, password] = decoded.split(':');
-      if (password !== this.MERCHANT_KEY) {
+      if (password !== this.MERCHANT_TEST_KEY) {
         return error;
       }
       return {};

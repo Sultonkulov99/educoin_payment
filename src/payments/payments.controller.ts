@@ -23,10 +23,10 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  // @Post('api/payment/checkout')
-  // createPayment(@Body() payload: CreatePaymentDto, @Req() req: any) {
-  //   return this.paymentsService.createPayment(payload, req.user);
-  // }
+  @Post('api/payment/checkout')
+  createPayment(@Body() payload: CreatePaymentDto, @Req() req: any) {
+    return this.paymentsService.createPayment(payload);
+  }
 
   @ApiExcludeEndpoint()
   @Post('payment/payme/gateway')

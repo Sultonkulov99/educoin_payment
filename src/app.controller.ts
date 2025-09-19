@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { AppService } from './app.service';
+import { CreateCenterDto } from './dto/create.center.dto';
 
 @Controller("centers")
 export class AppController {
@@ -19,7 +20,7 @@ export class AppController {
     return this.appService.searchCentersByName(name);
   }
   @Post()
-  createCenter(@Body() payload: any) {
+  createCenter(@Body() payload: CreateCenterDto) {
     return this.appService.createCenter(payload);
   }
 
