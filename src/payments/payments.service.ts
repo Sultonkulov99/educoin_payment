@@ -34,8 +34,7 @@ export class PaymentsService {
   ) { }
 
   private MERCHANT_ID = "68cbb0f40498426284f50559";
-  // private MERCHANT_KEY = process.env.PAYME_KEY as string;
-  private MERCHANT_TEST_KEY = "ZR&KXDqE0j&HW1nUyhZSTG5?m#S8n&vJyr6#"
+  private MERCHANT_KEY = process.env.PAYME_KEY as string;
   private $paymeCheckoutUrl = process.env.PAYME_CHECKOUT_URL as string;
   private $transactionTimeout = 30; // in minutes
   private amount = 200000
@@ -540,7 +539,7 @@ export class PaymentsService {
       const token = (headers.authorization as string).split(' ')[1];
       const decoded = Buffer.from(token, 'base64').toString();
       const [login, password] = decoded.split(':');
-      if (password !== this.MERCHANT_TEST_KEY) {
+      if (password !== this.MERCHANT_KEY) {
         return error;
       }
       return {};
