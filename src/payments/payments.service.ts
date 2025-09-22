@@ -37,10 +37,9 @@ export class PaymentsService {
   private MERCHANT_KEY = process.env.PAYME_KEY as string;
   private $paymeCheckoutUrl = process.env.PAYME_CHECKOUT_URL as string;
   private $transactionTimeout = 30; // in minutes
-  private amount = 200000
+  private amount = 5000
 
   async createPayment(payload: CreatePaymentDto) {
-    console.log(this.MERCHANT_ID,this.MERCHANT_KEY)
     const center = await this.prisma.center.findUnique({
       where: {
         id: payload.centerId,
