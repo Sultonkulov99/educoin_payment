@@ -17,5 +17,5 @@ export class CreatePaymentDto {
   @ApiProperty()
   @IsInt()
   @IsPositive()
-  amount:number
+  amount:number  
 }  
