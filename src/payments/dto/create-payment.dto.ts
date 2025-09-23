@@ -18,4 +18,4 @@ export class CreatePaymentDto {
   @IsInt()
   @IsPositive()
   amount:number
-}
+}  
