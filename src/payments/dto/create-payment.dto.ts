@@ -1,8 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsDateString, IsInt, IsPositive, IsUUID } from 'class-validator';
 
 export class CreatePaymentDto {
   @ApiProperty()
   @IsUUID()
-  centerId: number;
+  centerId: number
+
+  @ApiProperty()
+  @IsDateString()
+  startDate:string
+
+  @ApiProperty()
+  @IsDateString()
+  endDate:string
+
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  amount:number
 }
