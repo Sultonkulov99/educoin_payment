@@ -299,8 +299,8 @@ export class PaymentsService {
         transactionId: transaction.id,
         amount: transaction.amount,
         paidVia: PaidVia.PAYME,
-        startDate: paymentData.startDate,
-        endDate: paymentData.endDate
+        startDate: new Date(paymentData.startDate),
+        endDate: new Date(paymentData.endDate)
       },
     });
     const editedTransaction = await this.prisma.transaction.update({
