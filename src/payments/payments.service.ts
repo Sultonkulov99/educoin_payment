@@ -23,12 +23,14 @@ import { getInMills, validateWithinMinutes } from '../utils/time';
 import { PaidVia, Transaction } from '@prisma/client';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { RedisService } from 'src/redis/redis.service';
+import { BotService } from 'src/bot/bot.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private prisma: PrismaService,
-    private redis: RedisService
+    private redis: RedisService,
+    private botService : BotService
   ) { }
 
   private MERCHANT_ID = process.env.PAYME_MERCHANT_ID as string;;
@@ -292,6 +294,9 @@ export class PaymentsService {
     let stored = await this.redis.get(`${transaction.centerId}`)
     if (!stored) throw new BadRequestException("CenterId or not found!!")
     let paymentData = JSON.parse(stored)
+  
+    //@ts-ignore
+    await this.botService.notifyPayment(transaction.centerId,transaction.amount,paymentData.fromDate,paymentData.toDate)
 
     await this.prisma.payment.create({
       data: {
