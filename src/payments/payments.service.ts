@@ -30,7 +30,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
-    private botService : BotService
+    private botService: BotService
   ) { }
 
   private MERCHANT_ID = process.env.PAYME_MERCHANT_ID as string;;
@@ -202,7 +202,7 @@ export class PaymentsService {
     if ('error' in account) {
       return account;
     }
-    
+
     const existingTransaction = await this.prisma.transaction.findUnique({
       where: { pid: payload.id },
     });
@@ -294,10 +294,13 @@ export class PaymentsService {
     let stored = await this.redis.get(`${transaction.centerId}`)
     if (!stored) throw new BadRequestException("CenterId or not found!!")
     let paymentData = JSON.parse(stored)
-  
-    //@ts-ignore
-    await this.botService.notifyPayment(transaction.centerId,transaction.amount,paymentData.fromDate,paymentData.toDate)
 
+    try {
+      //@ts-ignore
+      await this.botService.notifyPayment(transaction.centerId, transaction.amount, paymentData.fromDate, paymentData.toDate)
+    } catch (error) {
+      console.log(error)
+    }
     await this.prisma.payment.create({
       data: {
         centerId: transaction.centerId,
