@@ -40,7 +40,6 @@ export class PaymentsService {
 
   async createPayment(payload: CreatePaymentDto) {
     await this.redis.set(`${payload.centerId}`, JSON.stringify({ ...payload }), 1800)
-    let stored = await this.redis.get(`${payload.centerId}`)
 
     const center = await this.prisma.center.findUnique({
       where: {
@@ -52,7 +51,7 @@ export class PaymentsService {
     }
 
     try {
-      await this.botService.notifyPayment(payload.centerId, payload.amount, payload.startDate, payload.endDate, "#Jarayonda... ⏳")
+      await this.botService.notifyPayment(+payload.centerId, payload.amount, payload.startDate, payload.endDate, "#Jarayonda... ⏳")
     } catch (error) {
       console.log(error)
     }
