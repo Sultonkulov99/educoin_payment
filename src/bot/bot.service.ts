@@ -15,6 +15,7 @@ export class BotService implements OnModuleInit {
 
     async notifyPayment(centerId: number, amount: number, startDate: string, endDate: string, text: string) {
         const chatId = process.env.GROUP_ID as string;
+        console.log(centerId,amount,startDate, endDate, text)
         const center = await this.prisma.center.findUnique({
             where: { id: centerId }
         })
