@@ -13,13 +13,13 @@ export class BotService implements OnModuleInit {
         ])
     }
 
-    async notifyPayment(centerId: number, amount: number, startDate : string, endDate : string) {
+    async notifyPayment(centerId: number, amount: number, startDate : string, endDate : string, text : string) {
         const chatId = process.env.GROUP_ID as string;
         const center = await this.prisma.center.findUnique({
             where:{id:centerId}
         })
     
-        const message = `Center Name : ${center?.name}\nAmount : ${amount}\nStartDate : ${startDate}\nEndDate : ${endDate}`;
+        const message = `${text}\n\n🏫 Markaz nomi : ${center?.name}\n🤑 To'lov miqdori : ${amount}\n🕚 Boshlangan vaqti : ${startDate}\n🕚 Tugagan vaqti : ${endDate}`;
 
         await this.bot.telegram.sendMessage(chatId, message);
     }

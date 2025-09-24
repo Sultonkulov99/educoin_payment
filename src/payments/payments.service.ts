@@ -41,7 +41,6 @@ export class PaymentsService {
   async createPayment(payload: CreatePaymentDto) {
     await this.redis.set(`${payload.centerId}`, JSON.stringify({ ...payload }), 1800)
     let stored = await this.redis.get(`${payload.centerId}`)
-    console.log(stored)
 
     const center = await this.prisma.center.findUnique({
       where: {
@@ -52,12 +51,19 @@ export class PaymentsService {
       throw new NotFoundException('Center not found');
     }
 
+    try {
+      await this.botService.notifyPayment(payload.centerId, payload.amount, payload.startDate, payload.endDate, "#Jarayonda... ⏳")
+    } catch (error) {
+      console.log(error)
+    }
+
     const checkoutPayload = Buffer.from(
       `m=${this.MERCHANT_ID};a=${amountToPenny(payload.amount)};ac.center_id=${payload.centerId}`,
     ).toString('base64');
     return {
       success: true,
-      paymentUrl: this.$paymeCheckoutUrl + checkoutPayload
+      paymentUrl: this.$paymeCheckoutUrl + checkoutPayload,
+      data:payload
     }
   }
 
@@ -297,7 +303,7 @@ export class PaymentsService {
 
     try {
       //@ts-ignore
-      await this.botService.notifyPayment(transaction.centerId, transaction.amount, paymentData.fromDate, paymentData.toDate)
+      await this.botService.notifyPayment(transaction.centerId, transaction.amount, paymentData.fromDate, paymentData.toDate, "#Tasdiqlandi ✅")
     } catch (error) {
       console.log(error)
     }
