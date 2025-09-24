@@ -61,7 +61,7 @@ export class PaymentsService {
     ).toString('base64');
     return {
       success: true,
-      paymentUrl: this.$paymeCheckoutUrl + checkoutPayload,
+      paymentUrl: `${this.$paymeCheckoutUrl + checkoutPayload}?return_url=https://educoin.fixoo.uz/payment?success=true`,
       data:payload
     }
   }

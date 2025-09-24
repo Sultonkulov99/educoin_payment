@@ -28,7 +28,7 @@ export class PaymentsController {
     return this.paymentsService.createPayment(payload);
   }
 
-  @ApiExcludeEndpoint()
+  @ApiExcludeEndpoint() 
   @Post('payment/payme/gateway')
   paymeRequest(
     @Body() payload: PaymeRequest,
