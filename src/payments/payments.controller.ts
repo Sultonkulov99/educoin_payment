@@ -23,6 +23,11 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  @Get("payments")
+  getPayments(){
+    return this.paymentsService.getPayments()
+  }
+
   @Post('api/payment/checkout')
   createPayment(@Body() payload: CreatePaymentDto, @Req() req: any) {
     return this.paymentsService.createPayment(payload);

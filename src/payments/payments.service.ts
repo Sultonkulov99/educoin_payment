@@ -38,6 +38,26 @@ export class PaymentsService {
   private $paymeCheckoutUrl = process.env.PAYME_CHECKOUT_URL as string;
   private $transactionTimeout = 30; // in minutes
 
+  async getPayments() {
+    return this.prisma.center.findMany({
+      select: {
+        id: true,
+        name: true,
+        payments: {          
+          select: {
+            id: true,
+            amount: true,
+            startDate: true,
+            endDate: true,
+            paidVia: true,
+            status: true,
+            paidAt: true,
+          },
+        },
+      },
+    });
+  }
+
   async createPayment(payload: CreatePaymentDto) {
     await this.redis.set(`${payload.centerId}`, JSON.stringify({ ...payload }), 1800)
     const center = await this.prisma.center.findUnique({
@@ -61,8 +81,8 @@ export class PaymentsService {
     ).toString('base64');
     return {
       success: true,
-      paymentUrl: `${this.$paymeCheckoutUrl + checkoutPayload}?return_url=https://educoin.fixoo.uz/payment?success=true`,
-      data:payload
+      paymentUrl: this.$paymeCheckoutUrl + checkoutPayload,
+      data: payload
     }
   }
 
