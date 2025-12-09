@@ -11,7 +11,7 @@ import { PaymentsService } from './payments.service';
 import { PaymeRequest } from '../types/payments/payme';
 import {
   ApiBearerAuth,
-  ApiExcludeEndpoint,
+  ApiExcludeEndpoint, 
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
