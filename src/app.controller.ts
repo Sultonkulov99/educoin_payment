@@ -14,7 +14,7 @@ export class AppController {
   @Get(":id")
   getCenterById(@Param("id", ParseIntPipe) id: number) {
     return this.appService.getCenterById(id);
-  }
+  } 
   @Get("search")
   searchCenters(@Query("name") name: string) {
     return this.appService.searchCentersByName(name);
