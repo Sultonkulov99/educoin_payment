@@ -16,7 +16,7 @@ services:
   redis:
     image: redis:7
     container_name: payment_redis
-    restart: always
+    restart: always 
     ports:
       - "6379:6379"
   app:
