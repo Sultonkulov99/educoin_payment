@@ -10,3 +10,4 @@ import { PrismaModule } from './database/prisma.module';
   providers: [AppService],
 })
 export class AppModule {}
+  
